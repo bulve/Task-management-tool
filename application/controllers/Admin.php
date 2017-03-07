@@ -23,6 +23,7 @@ class Admin extends CI_Controller{
         $this->load->library('form_validation');
         $this->form_validation->set_error_delimiters('<div class="error">', '</div>');
         $this->roles = $this->config->item('roles');
+		$this->taskStatus = $this->config->item('taskStatus');
 
     }
     public function index() //redirecting to right place
@@ -49,7 +50,7 @@ class Admin extends CI_Controller{
         }
         $this->form_validation->set_rules('taskTopic', 'Task topic', 'required');
         $this->form_validation->set_rules('taskText', 'Task', 'required');
-        $this->form_validation->set_rules('deadline', 'Dead line date format', 'regex_match[(0[1-9]|1[0-9]|2[0-9]|3(0|1))-(0[1-9]|1[0-2])-\d{4}]');
+        $this->form_validation->set_rules('deadline', 'Dead line date format', 'trim|required|callback_validate_date');
 
         $data['users']= $this->user_model->get_only_users();
         $data['userList'] = $this->input->post('userList');
@@ -122,6 +123,7 @@ class Admin extends CI_Controller{
         }
         $this->form_validation->set_rules('newTaskTopic', 'Task topic', 'required');
         $this->form_validation->set_rules('newTaskText', 'Task', 'required');
+		$this->form_validation->set_rules('newDeadline', 'Dead line date format', 'trim|required|callback_validate_date');
 
         $data['id'] = $id;
         $data['uniqTask'] = $this->Task_model->get_uniq_task($id);
@@ -157,6 +159,18 @@ class Admin extends CI_Controller{
     {
         $this->session->sess_destroy();
         redirect(site_url().'/main/login/');
+    }
+	
+	function validate_date($str){
+        if (preg_match("/^((((19|[2-9]\d)\d{2})\-(0[13578]|1[02])\-(0[1-9]|[12]\d|3[01]))|(((19|[2-9]\d)\d{2})\-(0[13456789]|1[012])\-(0[1-9]|[12]\d|30))|(((19|[2-9]\d)\d{2})\-02\-(0[1-9]|1\d|2[0-8]))|(((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00))\-02\-29))$/g",$str)) //yes it's YYYY-MM-DD
+        {
+            $this->form_validation->set_message('validate_date', 'The {field} has not a valid date format');
+            return FALSE;
+        }
+        else
+        {
+            return TRUE;
+        }
     }
 
 
