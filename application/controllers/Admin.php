@@ -12,6 +12,7 @@ class Admin extends CI_Controller{
 
 
     public $roles;
+	public $taskStatus;
 
 
     function __construct()
